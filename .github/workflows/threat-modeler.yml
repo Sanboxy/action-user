@@ -1,0 +1,36 @@
+name: Threat Model
+
+on:
+  pull_request: {}
+  push:
+    branches:
+    - master
+    - main
+  workflow_dispatch: {}
+
+jobs:
+  threat-modeler:
+    name: ChatGPT Threat Model
+    runs-on: ubuntu-latest
+
+    if: (github.actor != 'dependabot[bot]')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Run Threat-Modeler
+        id: threat-modeler
+        uses: Kong/public-shared-actions/security-actions/threat-modeler@a941a0fdba884dfdefba8b87b33bce90d77dae59
+        with:
+            docs-directory: 'docs'
+            application-description: 'KHCP'
+            dry-run: 'false'
+            api-key: ${{ secrets.OPENAI_API_KEY}}
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: threat-model
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
